@@ -7,7 +7,9 @@ This app fetches real-time weather data using the [Open-Meteo API](https://open-
 
   - GitHub Repo Link: https://github.com/anuj-web-stack/Weather-Forecast-Application.git
 
----
+## 🌐 Live Demo 
+   🔗 [Try the Weather Forecast App] https://anuj-web-stack.github.io/Weather-Forecast-Application/
+
 
 ## ✨ Features
 
