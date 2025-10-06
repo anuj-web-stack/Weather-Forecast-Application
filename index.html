@@ -62,7 +62,19 @@
                     aria-label="Recent searches"></select>
             </div>
 
-            
+            <!-- Right Section: Temperature Unit Toggle (°C / °F) -->
+            <div class="ml-2 flex items-center gap-2">
+                <span class="text-sm text-black-700 text-white">Unit</span>
+                <div id="unitToggle"
+                    class="relative w-20 h-9 bg-gray-200 rounded-full cursor-pointer flex items-center px-2">
+                    <span class="absolute left-3 text-sm font-semibold">°C</span>
+                    <span class="absolute right-3 text-sm font-semibold">°F</span>
+                    <div id="unitThumb"
+                        class="absolute w-8 h-8 bg-white rounded-full shadow-md transition-all duration-300 left-1">
+                    </div>
+                </div>
+            </div>
+        </header>
 
         <!-- MESSAGES -->
         <div id="errorBox" aria-live="polite" class="hidden mt-4 p-3 card glass border-l-4 border-red-500 text-red-700"></div>
