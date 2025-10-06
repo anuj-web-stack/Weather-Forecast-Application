@@ -355,3 +355,119 @@ const searchByCoords = async (lat, lon) => {
     hideLoader();
   }
 };
+
+/* ======= EVENTS ======= */
+// Search form submit
+searchForm.addEventListener('submit', e => {
+  e.preventDefault();
+  searchCity(searchInput.value);
+});
+
+// Geo button → use device location
+geoBtn.addEventListener('click', () => {
+  if (!navigator.geolocation)
+    return showError('Geolocation not supported in this browser.');
+  navigator.geolocation.getCurrentPosition(
+    pos => searchByCoords(pos.coords.latitude, pos.coords.longitude),
+    () => showError('Unable to retrieve location. Please allow location access.')
+  );
+});
+
+// Dropdown for recent searches
+recentDropdown.addEventListener('change', e => {
+  if (e.target.value) searchCity(e.target.value);
+});
+
+// Unit toggle (°C ↔ °F)
+const unitThumb = document.getElementById('unitThumb');
+
+unitToggle.addEventListener('click', () => {
+  // Toggle state
+  currentUnit = currentUnit === 'C' ? 'F' : 'C';
+
+  // Animate thumb position
+  if (currentUnit === 'F') {
+    unitThumb.style.left = '4px'; // move to left
+  } else {
+    unitThumb.style.left = 'calc(100% - 36px)'; // move to right
+  }
+
+  // Re-fetch and update UI
+  if (lastCoords) {
+    fetchWeatherByCoords(lastCoords.lat, lastCoords.lon)
+      .then(data => {
+        renderCurrent(data, { name: lastCity, country: '' });
+        renderForecast(data);
+      })
+      .catch(err => showError(err.message));
+  }
+});
+
+/* ======= CITY SUGGESTIONS DROPDOWN ======= */
+// Autocomplete for search input
+searchInput.addEventListener('input', async () => {
+  const query = searchInput.value.trim();
+
+  if (query.length < 2) {
+    suggestionsBox.classList.add('hidden');
+    return;
+  }
+
+  const suggestions = await fetchCoordsSuggestions(query);
+
+  if (!suggestions.length) {
+    suggestionsBox.classList.add('hidden');
+    return;
+  }
+
+  // Populate dropdown
+  suggestionsBox.innerHTML = '';
+  suggestions.forEach(loc => {
+    const item = document.createElement('div');
+    item.className = 'px-3 py-2 hover:bg-gray-100 cursor-pointer';
+    item.textContent = `${loc.name}${loc.country ? ', ' + loc.country : ''}`;
+
+    // Only set input value, do NOT call searchCity
+    item.addEventListener('click', () => {
+      searchInput.value = loc.name; 
+      suggestionsBox.classList.add('hidden');
+    });
+
+    suggestionsBox.appendChild(item);
+  });
+
+  suggestionsBox.classList.remove('hidden');
+});
+
+// Hide suggestions if clicking outside
+document.addEventListener('click', (e) => {
+  if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+    suggestionsBox.classList.add('hidden');
+  }
+});
+
+/* ======= INITIAL LOAD ======= */
+const initApp = () => {
+  showLoader(); // Show loader immediately
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        searchByCoords(pos.coords.latitude, pos.coords.longitude)
+          .finally(() => hideLoader()); // Hide loader after data loads
+      },
+      () => {
+        searchCity('London').finally(() => hideLoader()); // Hide loader even if using fallback city
+      },
+      { enableHighAccuracy: false, timeout: 10000 }
+    );
+  } else {
+    searchCity('London').finally(() => hideLoader());
+  }
+
+  // Fallback: ensure loader disappears after 10s max
+  setTimeout(() => hideLoader(), 10000);
+};
+
+initApp();
+renderRecent();
