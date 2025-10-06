@@ -196,3 +196,162 @@ const pickIcon = code => {
 
   return 'images/icons/cloudy.png'; // Default fallback
 };
+
+/* ======= API CALLS ======= */
+// Get coordinates for city name
+const fetchCoordsByCity = async city => {
+  const res = await fetch(
+    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(
+      city
+    )}&count=1`
+  );
+  const data = await res.json();
+  if (!data.results || data.results.length === 0)
+    throw new Error('City not found');
+  return data.results[0];
+};
+
+// Get multiple city suggestions for autocomplete
+const fetchCoordsSuggestions = async query => {
+  if (!query.trim()) return [];
+
+  const res = await fetch(
+    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(
+      query
+    )}&count=5`
+  );
+  const data = await res.json();
+
+  return data.results || [];
+};
+
+// Get weather data by coordinates
+const fetchWeatherByCoords = async (lat, lon) => {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=relativehumidity_2m,pressure_msl,cloudcover,uv_index,precipitation&daily=temperature_2m_max,temperature_2m_min,weathercode,precipitation_sum,uv_index_max&timezone=auto`;
+  const res = await fetch(url);
+  return res.json();
+};
+
+/* ======= RENDERING ======= */
+// Display current weather on UI
+const renderCurrent = (data, location) => {
+  const current = data.current_weather;
+  if (!current) return;
+
+  // Update city + date
+  cityNameEl.textContent = `${location.name || "Unknown"}${location.country ? ', ' + location.country : ''}`;
+  dateTextEl.textContent = new Date(current.time).toLocaleString();
+
+  // Update main weather info
+  const tempC = current.temperature;
+  todayTempEl.textContent = formatTemp(tempC);
+  tempUnitEl.textContent = currentUnit === 'C' ? '°C' : '°F';
+
+  descriptionEl.textContent = mapWeatherCode(current.weathercode);
+  windEl.textContent = current.windspeed + ' km/h';
+  currentIcon.src = pickIcon(current.weathercode);
+  currentIcon.alt = descriptionEl.textContent;
+
+  // find nearest hour for extra values
+  if (data.hourly && data.hourly.time) {
+    const idx = findNearestHourIndex(data.hourly.time, current.time);
+    document.getElementById('humidity').textContent = data.hourly.relativehumidity_2m[idx] + '%';
+    document.getElementById('pressure').textContent = data.hourly.pressure_msl[idx] + ' hPa';
+    document.getElementById('clouds').textContent = data.hourly.cloudcover[idx] + '%';
+    document.getElementById('uv').textContent = data.hourly.uv_index[idx];
+    document.getElementById('precip').textContent = data.hourly.precipitation[idx] + ' mm';
+  }
+
+  updateBackground(current.weathercode, current.time);
+
+  tempC > 40
+    ? showTempAlert(`Extreme temperature alert: ${Math.round(tempC)}°C — stay hydrated!`)
+    : hideTempAlert();
+};
+
+// Display forecast cards
+const renderForecast = data => {
+  forecastEl.innerHTML = '';
+  if (!data.daily || !data.daily.time) {
+    forecastEl.innerHTML = '<div class="p-4 text-gray-600">No forecast available.</div>';
+    return;
+  }
+
+  const days = data.daily.time;
+  for (let i = 1; i <= 5 && i < days.length; i++) {
+    const card = document.createElement('div');
+    card.className = 'p-3 card text-center';
+    card.innerHTML = `
+      <div class="font-semibold">${new Date(days[i]).toLocaleDateString(undefined, { weekday: 'short' })}</div>
+      <img src="${pickIcon(data.daily.weathercode[i])}" 
+           alt="${mapWeatherCode(data.daily.weathercode[i])}" 
+           class="mx-auto" />
+      <div class="text-xl font-bold">
+        ${formatTemp(data.daily.temperature_2m_max[i])}°${currentUnit} /
+        ${formatTemp(data.daily.temperature_2m_min[i])}°${currentUnit}
+      </div>
+      <div class="text-sm text-gray-600">Precip: ${data.daily.precipitation_sum[i]} mm</div>
+      <div class="text-sm text-gray-600">UV Max: ${data.daily.uv_index_max[i]}</div>
+    `;
+    forecastEl.appendChild(card);
+  }
+};
+
+
+/* ======= ORCHESTRATION ======= */
+// Search city by name → fetch → render
+const searchCity = async city => {
+  clearError();
+  if (!city.trim()) return showError('Please enter a city name.');
+  showLoader(); //  Show loader
+  try {
+    const loc = await fetchCoordsByCity(city);
+    const data = await fetchWeatherByCoords(loc.latitude, loc.longitude);
+    lastCoords = { lat: loc.latitude, lon: loc.longitude };
+    lastCity = loc.name;
+    localStorage.setItem('lastCity', loc.name);
+    renderCurrent(data, loc);
+    renderForecast(data);
+    saveRecent(loc.name);
+  } catch (err) {
+    showError(err.message);
+  } finally {
+    hideLoader(); // Always hide loader
+  }
+};
+
+// Search weather by geolocation coordinates
+const searchByCoords = async (lat, lon) => {
+  showLoader();
+  try {
+    let loc = { name: 'Unknown', country: '' };
+    try {
+      const nominatimUrl = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`;
+      const geoRes = await fetch(nominatimUrl, {
+        headers: { 'User-Agent': 'weather-app/1.0' }
+      });
+      const geoData = await geoRes.json();
+      if (geoData && geoData.address) {
+        const addr = geoData.address;
+        const name =
+          addr.city || addr.town || addr.village || addr.hamlet || addr.suburb || addr.state || "Unknown";
+        loc = { name, country: addr.country || '' };
+      }
+    } catch (geoErr) {
+      console.warn("⚠ Reverse geocoding failed:", geoErr.message);
+    }
+
+    const data = await fetchWeatherByCoords(lat, lon);
+    lastCoords = { lat, lon };
+    lastCity = loc.name;
+    renderCurrent(data, loc);
+    renderForecast(data);
+    saveRecent(loc.name);
+    searchInput.value = "";
+  } catch (err) {
+    console.error('searchByCoords error:', err);
+    showError('Unable to fetch location-based weather.');
+  } finally {
+    hideLoader();
+  }
+};
