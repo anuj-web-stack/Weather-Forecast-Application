@@ -73,5 +73,45 @@ body::before {
   visibility: visible;
 }
 
+/* =======================
+   RESPONSIVE DESIGN
+   ======================= */
 
+@media (max-width: 640px) { /* iPhone SE */
+  .icon-lg {
+    width: 4rem;
+    height: 4rem;
+  }
+}
+@media (min-width: 641px) and (max-width: 1024px) {
+  /* Force vertical stacking ONLY on iPad/tablet */
+  main {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1.5rem;
+  }
+
+  /* Stretch current weather card to look wider */
+  #currentCard {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* Forecast still uses 3 columns */
+  #forecast {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 1rem;
+  }
+
+  header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 1rem;
+  }
+
+  header > div:last-child {
+    align-self: flex-start !important;
+    margin-left: 0 !important;
+  }
+}
 
