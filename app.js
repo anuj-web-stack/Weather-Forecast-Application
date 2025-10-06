@@ -119,3 +119,28 @@ const saveRecent = city => {
   renderRecent();
 };
 
+// Render dropdown of recent searches
+const renderRecent = () => {
+  const key = 'recentCities_v1';
+  const arr = JSON.parse(localStorage.getItem(key) || '[]');
+  if (!Array.isArray(arr) || arr.length === 0) {
+    recentDropdown.classList.add('hidden');
+    return;
+  }
+  recentDropdown.innerHTML = '';
+
+   // Placeholder option
+  const placeholder = document.createElement('option');
+  placeholder.value = '';
+  placeholder.textContent = 'Recent searches';
+  recentDropdown.appendChild(placeholder);
+
+   // Add each recent city
+  arr.forEach(city => {
+    const opt = document.createElement('option');
+    opt.value = city;
+    opt.textContent = city;
+    recentDropdown.appendChild(opt);
+  });
+  recentDropdown.classList.remove('hidden');
+};
