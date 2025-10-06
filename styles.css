@@ -1,0 +1,77 @@
+/* backgrounds */
+/* === Weather backgrounds (images) === */
+
+/* Day backgrounds */
+.bg-day-clear   { background-image: url('./images/background/day-clear.jpg'); }
+.bg-day-cloudy  { background-image: url('./images/background/day-cloudy.jpg'); }
+.bg-day-rain    { background-image: url('./images/background/day-rain.jpg'); }
+.bg-day-snow    { background-image: url('./images/background/day-snow.jpg'); }
+.bg-day-thunder { background-image: url('./images/background/day-thunder.jpg'); }
+.bg-day-fog     { background-image: url('./images/background/day-fog.jpg'); }
+.bg-day-hail    { background-image: url('./images/background/day-hail.jpg'); }
+
+/* Night backgrounds */
+.bg-night-clear   { background-image: url('./images/background/night-clear.jpg'); }
+.bg-night-cloudy  { background-image: url('./images/background/night-cloud.jpg'); }
+.bg-night-rain    { background-image: url('./images/background/night-rain.jpg'); }
+.bg-night-snow    { background-image: url('./images/background/night-snow.jpg'); }
+.bg-night-thunder { background-image: url('./images/background/night-thunder.jpg'); }
+.bg-night-fog     { background-image: url('./images/background/night-fog.jpg'); }
+.bg-night-hail    { background-image: url('./images/background/night-hail.jpg'); }
+
+/* Common styles */
+body {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: background 1s ease-in-out;
+}
+
+/* Add semi-transparent overlay over bg 
+   - Darkens bright images so text remains readable
+   - Adjust opacity in rgba() for stronger/lighter overlay
+*/
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3); /* adjust opacity as needed */
+  z-index: -1;
+}
+
+/* glass/card styling */
+.glass { background: rgba(255,255,255,0.6); backdrop-filter: blur(6px); }
+.card { border-radius: 12px; box-shadow: 0 6px 18px rgba(15,23,42,0.08); }
+
+/* icons
+.icon-lg { width: 96px; height: 96px; object-fit: contain; } */
+
+#geoBtn {
+  height: 40px;
+  font-size: 15px;
+  width: 130px;
+  font-family:Arial, Helvetica, sans-serif;
+  font-weight: 500;
+}
+
+.icon-lg {
+  width: 6rem; /* ~96px */
+  height: 6rem;
+}
+
+#loaderOverlay {
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+#loaderOverlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+#loaderOverlay:not(.hidden) {
+  opacity: 1;
+  visibility: visible;
+}
+
+
+
