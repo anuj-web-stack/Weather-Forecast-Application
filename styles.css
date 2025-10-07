@@ -2,21 +2,21 @@
 /* === Weather backgrounds (images) === */
 
 /* Day backgrounds */
-.bg-day-clear   { background-image: url('./images/background/day-clear.jpg'); }
-.bg-day-cloudy  { background-image: url('./images/background/day-cloudy.jpg'); }
+.bg-day-clear   { background-image: url('./images/background/day-clear.jpeg'); }
+.bg-day-cloudy  { background-image: url('./images/background/day-cloudy.jpeg'); }
 .bg-day-rain    { background-image: url('./images/background/day-rain.jpg'); }
-.bg-day-snow    { background-image: url('./images/background/day-snow.jpg'); }
-.bg-day-thunder { background-image: url('./images/background/day-thunder.jpg'); }
-.bg-day-fog     { background-image: url('./images/background/day-fog.jpg'); }
+.bg-day-snow    { background-image: url('./images/background/day-snow.jpeg'); }
+.bg-day-thunder { background-image: url('./images/background/day-thunder.jpeg'); }
+.bg-day-fog     { background-image: url('./images/background/day-fog.jpeg'); }
 .bg-day-hail    { background-image: url('./images/background/day-hail.jpg'); }
 
 /* Night backgrounds */
-.bg-night-clear   { background-image: url('./images/background/night-clear.jpg'); }
-.bg-night-cloudy  { background-image: url('./images/background/night-cloud.jpg'); }
-.bg-night-rain    { background-image: url('./images/background/night-rain.jpg'); }
-.bg-night-snow    { background-image: url('./images/background/night-snow.jpg'); }
-.bg-night-thunder { background-image: url('./images/background/night-thunder.jpg'); }
-.bg-night-fog     { background-image: url('./images/background/night-fog.jpg'); }
+.bg-night-clear   { background-image: url('./images/background/night-clear.jpeg'); }
+.bg-night-cloudy  { background-image: url('./images/background/night-cloud.jpeg'); }
+.bg-night-rain    { background-image: url('./images/background/night-rain.jpeg'); }
+.bg-night-snow    { background-image: url('./images/background/night-snow.jpeg'); }
+.bg-night-thunder { background-image: url('./images/background/night-thunder.jpeg'); }
+.bg-night-fog     { background-image: url('./images/background/night-fog.jpeg'); }
 .bg-night-hail    { background-image: url('./images/background/night-hail.jpg'); }
 
 /* Common styles */
